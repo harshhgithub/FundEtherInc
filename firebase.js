@@ -1,17 +1,20 @@
 // firebase.js
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY", // 🔁 Replace with your config
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_MSG_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyDAA9G83nqzSCQhg1jah_Y93Rn8VULaZBo",
+  authDomain: "fundetherinc.firebaseapp.com",
+  projectId: "fundetherinc",
+  storageBucket: "fundetherinc.firebasestorage.app",
+  messagingSenderId: "852628678472",
+  appId: "1:852628678472:web:c95a427c26d91e72a2757d",
+  measurementId: "G-WDV3K6TL85"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 
-export { auth };
+// Initialize only once (important in Next.js because of hot reloads)
+const app = initializeApp(firebaseConfig);
+
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();

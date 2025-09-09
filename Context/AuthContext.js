@@ -1,43 +1,41 @@
-// Context/AuthContext.js
 import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase"; // ✅ make sure this path is correct
+import { auth, googleProvider } from "../firebase";
+import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
-  // Firebase auth listener
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-
-    return () => unsubscribe(); // Clean up
-  }, []);
-
-  // Register user
-  const register = (email, password) => {
-    return createUserWithEmailAndPassword(auth, email, password);
-  };
-
-  // Login user
-  const login = (email, password) => {
-    return signInWithEmailAndPassword(auth, email, password);
+  // Google Sign In
+  const signInWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      setUser(result.user);
+    } catch (error) {
+      console.error("Google Sign-in error:", error.message);
+    }
   };
 
   // Logout
-  const logout = () => {
-    return signOut(auth);
+  const logout = async () => {
+    await signOut(auth);
+    setUser(null);
   };
 
+  // Persist user
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser || null);
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, signInWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook
 export const useAuth = () => useContext(AuthContext);

@@ -69,7 +69,10 @@ const Hero = () => {
                       />
                       <input
                         onChange={(e) =>
-                          setCampaign({ ...campaign, description: e.target.value })
+                          setCampaign({
+                            ...campaign,
+                            description: e.target.value,
+                          })
                         }
                         placeholder="Description"
                         required
@@ -105,23 +108,12 @@ const Hero = () => {
                     </form>
                   </>
                 ) : (
-                  <div className="text-center">
-                    <h3 className="text-2xl font-bold mb-4 text-gray-800">
-                      Please Log In
-                    </h3>
-                    <p className="text-gray-600 mb-4">
-                      You need to log in to create a campaign.
-                    </p>
-                    <button
-                      onClick={() => router.push("/login")}
-                      className="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition"
-                    >
-                      Go to Login
-                    </button>
-                  </div>
+                  <p className="text-center text-gray-700">
+                    Please <span className="font-semibold">sign in with Google</span> to
+                    create a campaign.
+                  </p>
                 )}
               </div>
-              {/* End */}
             </div>
           </div>
         </div>

@@ -5,28 +5,48 @@ export const CrowdFundingContext = createContext();
 
 export const CrowdFundingProvider = ({ children }) => {
   const [campaigns, setCampaigns] = useState([]);
-  const [donations, setDonations] = useState({}); // {campaignId: [{amount, userId, date}]}
+  const [donations, setDonations] = useState({});
+  const [currentAccount, setCurrentAccount] = useState(null);
 
-  // Create a new campaign
+  // Connect to MetaMask wallet
+  const connectWallet = async () => {
+    try {
+      if (!window.ethereum) return alert("Please install MetaMask");
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      setCurrentAccount(accounts[0]);
+    } catch (error) {
+      console.error("Wallet connection failed:", error);
+    }
+  };
+
+  // Check if wallet is already connected
+  const checkIfWalletIsConnected = async () => {
+    if (window.ethereum) {
+      const accounts = await window.ethereum.request({ method: "eth_accounts" });
+      if (accounts.length > 0) setCurrentAccount(accounts[0]);
+    }
+  };
+
+  // run once on load
+  React.useEffect(() => {
+    checkIfWalletIsConnected();
+  }, []);
+
+  // Campaign functions
   const createCampaign = (data) => {
     const newCampaign = {
       id: Date.now().toString(),
       ...data,
+      creator: currentAccount,
     };
     setCampaigns((prev) => [...prev, newCampaign]);
   };
 
-  // Get all campaigns
-  const getCampaigns = async () => {
-    return campaigns;
-  };
+  const getCampaigns = async () => campaigns;
+  const getUserCampaigns = async (userId) => campaigns.filter((c) => c.creator === userId);
 
-  // Get campaigns created by a specific user
-  const getUserCampaigns = async (userId) => {
-    return campaigns.filter((c) => c.creator === userId);
-  };
-
-  // Donate to a campaign
   const donate = (campaignId, amount, userId) => {
     const donation = {
       amount,
@@ -39,10 +59,7 @@ export const CrowdFundingProvider = ({ children }) => {
     }));
   };
 
-  // Get donations for a campaign
-  const getDonations = async (campaignId) => {
-    return donations[campaignId] || [];
-  };
+  const getDonations = async (campaignId) => donations[campaignId] || [];
 
   const titlData = "Decentralized Crowdfunding Platform";
 
@@ -56,6 +73,8 @@ export const CrowdFundingProvider = ({ children }) => {
         getUserCampaigns,
         donate,
         getDonations,
+        currentAccount,
+        connectWallet,
       }}
     >
       {children}
@@ -63,6 +82,4 @@ export const CrowdFundingProvider = ({ children }) => {
   );
 };
 
-// Custom hook
 export const useCrowdFunding = () => useContext(CrowdFundingContext);
-
